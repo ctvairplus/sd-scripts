@@ -34,7 +34,6 @@ from tqdm import tqdm
 
 import torch
 from library.device_utils import init_ipex, clean_memory_on_device
-from library.rlessucb import R_less_UCB
 
 init_ipex()
 
@@ -4873,7 +4872,7 @@ def get_timesteps_and_huber_c(args, min_timestep, max_timestep, noise_scheduler,
     elif args.loss_type == "huber" or args.loss_type == "smooth_l1":
         if args.rlessucb is not None:
             agent = arg.rlessucb
-            timesteps = torch.from_numpy(agent.select_arm())
+            timesteps = torch.from_numpy(agent.select_arm() * 100) + torch.randint(0, 99, (1,), device="cpu")
         else:
             timesteps = torch.randint(min_timestep, max_timestep, (1,), device="cpu")
 
@@ -4895,7 +4894,7 @@ def get_timesteps_and_huber_c(args, min_timestep, max_timestep, noise_scheduler,
     elif args.loss_type == "l2":
         if args.rlessucb is not None:
             agent = arg.rlessucb
-            timesteps = torch.from_numpy(np.array([agent.select_arm() for i in range(b_size)]))
+            timesteps = torch.from_numpy(np.array([agent.select_arm() * 100 for i in range(b_size)])) + torch.randint(0, 99, (b_size,), device="cpu")
         else:
             timesteps = torch.randint(min_timestep, max_timestep, (b_size,), device=device)
         huber_c = 1  # may be anything, as it's not used
