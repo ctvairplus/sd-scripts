@@ -34,6 +34,7 @@ from tqdm import tqdm
 
 import torch
 from library.device_utils import init_ipex, clean_memory_on_device
+from library.rlessucb import R_less_UCB
 
 init_ipex()
 
@@ -4869,8 +4870,13 @@ def get_timesteps_and_huber_c(args, min_timestep, max_timestep, noise_scheduler,
     # TODO: if a huber loss is selected, it will use constant timesteps for each batch
     # as. In the future there may be a smarter way
 
-    if args.loss_type == "huber" or args.loss_type == "smooth_l1":
-        timesteps = torch.randint(min_timestep, max_timestep, (1,), device="cpu")
+    elif args.loss_type == "huber" or args.loss_type == "smooth_l1":
+        if args.rlessucb is not None:
+            agent = arg.rlessucb
+            timesteps = torch.from_numpy(agent.select_arm())
+        else:
+            timesteps = torch.randint(min_timestep, max_timestep, (1,), device="cpu")
+
         timestep = timesteps.item()
 
         if args.huber_schedule == "exponential":
@@ -4887,7 +4893,11 @@ def get_timesteps_and_huber_c(args, min_timestep, max_timestep, noise_scheduler,
 
         timesteps = timesteps.repeat(b_size).to(device)
     elif args.loss_type == "l2":
-        timesteps = torch.randint(min_timestep, max_timestep, (b_size,), device=device)
+        if args.rlessucb is not None:
+            agent = arg.rlessucb
+            timesteps = torch.from_numpy(np.array([agent.select_arm() for i in range(b_size)]))
+        else:
+            timesteps = torch.randint(min_timestep, max_timestep, (b_size,), device=device)
         huber_c = 1  # may be anything, as it's not used
     else:
         raise NotImplementedError(f"Unknown loss type {args.loss_type}")
