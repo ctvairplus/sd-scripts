@@ -4871,7 +4871,7 @@ def get_timesteps_and_huber_c(args, min_timestep, max_timestep, noise_scheduler,
 
     if args.loss_type == "huber" or args.loss_type == "smooth_l1":
         if args.rlessucb is not None:
-            agent = arg.rlessucb
+            agent = args.rlessucb
             timesteps = torch.randint(0, 99, (1,), device="cpu") + torch.from_numpy(agent.select_arm() * 100)
         else:
             timesteps = torch.randint(min_timestep, max_timestep, (1,), device="cpu")
