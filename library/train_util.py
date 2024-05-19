@@ -4869,7 +4869,7 @@ def get_timesteps_and_huber_c(args, min_timestep, max_timestep, noise_scheduler,
     # TODO: if a huber loss is selected, it will use constant timesteps for each batch
     # as. In the future there may be a smarter way
 
-    elif args.loss_type == "huber" or args.loss_type == "smooth_l1":
+    if args.loss_type == "huber" or args.loss_type == "smooth_l1":
         if args.rlessucb is not None:
             agent = arg.rlessucb
             timesteps = torch.randint(0, 99, (1,), device="cpu") + torch.from_numpy(agent.select_arm() * 100)
