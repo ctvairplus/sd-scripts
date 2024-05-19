@@ -1101,6 +1101,11 @@ def setup_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="do not use fp16/bf16 VAE in mixed precision (use float VAE) / mixed precisionでも fp16/bf16 VAEを使わずfloat VAEを使う",
     )
+    parser.add_argument(
+        "--use_rlessucb",
+        action="store_true",
+        help="use R_less_UCB as timestep selector",
+    )
     return parser
 
 
