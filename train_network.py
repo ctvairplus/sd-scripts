@@ -152,10 +152,6 @@ class NetworkTrainer:
             args.seed = random.randint(0, 2**32)
         set_seed(args.seed)
 
-        if args.use_rlessucb:
-            args.rlessucb = R_less_UCB()
-            args.rlessucb.set_arms_number((args.max_timestep if args.max_timestep is not None else 1000)//100)
-
         # tokenizerは単体またはリスト、tokenizersは必ずリスト：既存のコードとの互換性のため
         tokenizer = self.load_tokenizer(args)
         tokenizers = tokenizer if isinstance(tokenizer, list) else [tokenizer]
@@ -377,6 +373,12 @@ class NetworkTrainer:
 
         # データセット側にも学習ステップを送信
         train_dataset_group.set_max_train_steps(args.max_train_steps)
+
+
+        if args.use_rlessucb:
+            args.rlessucb = agent = R_less_UCB()
+            agent.set_horizon(args.max_train_steps)
+            agent.set_arms_number((args.max_timestep if args.max_timestep is not None else 1000)//100)
 
         # lr schedulerを用意する
         lr_scheduler = train_util.get_scheduler_fix(args, optimizer, accelerator.num_processes)
