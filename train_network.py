@@ -40,6 +40,8 @@ from library.custom_train_functions import (
 )
 from library.utils import setup_logging, add_logging_arguments
 
+from library.rlessucb import R_less_UCB
+
 setup_logging()
 import logging
 
@@ -149,6 +151,10 @@ class NetworkTrainer:
         if args.seed is None:
             args.seed = random.randint(0, 2**32)
         set_seed(args.seed)
+
+        if args.use_rlessucb:
+            args.rlessucb = R_less_UCB()
+            args.rlessucb.set_arms_number((args.max_timestep if args.max_timestep is not None else 1000)//100)
 
         # tokenizerは単体またはリスト、tokenizersは必ずリスト：既存のコードとの互換性のため
         tokenizer = self.load_tokenizer(args)
